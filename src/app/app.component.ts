@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Chart } from 'chart.js';
+import { WeatherService } from 'src/app/weather.service';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -12,14 +14,66 @@ export class AppComponent implements OnInit {
   lineChartJs = [];
   pieChartJs = [];
   barChartJs = [];
+  jsonChartJs = [];
+
+  constructor(private _weather: WeatherService) {}
 
   public ngOnInit() {
 
     this.lineChart();
    // this.pieChart();
     this.barChart();
+    this.jsonChart();
   }
 
+  jsonChart(){
+    this._weather.dailyForecast()
+    .subscribe(res => {
+      let temp_max = res['list'].map(res => res.temp_max)
+      console.log("max",temp_max);
+      let temp_min = res['list'].map(res => res.temp_min)
+      console.log("min",temp_min);
+      let alldates = res['list'].map(res => res.dt)
+      
+      let weatherDates = []
+      alldates.forEach((res) => {
+          let jsdate = new Date(res * 1000)
+          weatherDates.push(jsdate.toLocaleTimeString('en', { year: 'numeric', month: 'short', day: 'numeric' }))
+          
+      })
+      this.jsonChartJs = new Chart('canvas', {
+        type: 'line',
+        data: {
+          labels: weatherDates,
+          datasets: [
+            { 
+              data: temp_max,
+              borderColor: "#3cba9f",
+              fill: false
+            },
+            { 
+              data: temp_min,
+              borderColor: "#ffcc00",
+              fill: false
+            },
+          ]
+        },
+        options: {
+          legend: {
+            display: false
+          },
+          scales: {
+            xAxes: [{
+              display: true
+            }],
+            yAxes: [{
+              display: true
+            }],
+          }
+        }
+      });
+    })
+  }
 
   lineChart() {
     this.lineChartJs = new Chart('lineChart', {

@@ -19,6 +19,9 @@
         <section class="content">
           <div class="row">
             <div class="col-md-6">
+                <div *ngIf="jsonChartJs">
+                    <canvas id="canvas">{{ jsonChartJs }}</canvas>
+                  </div>
               <!-- AREA CHART -->
             
               <!-- /.box -->
